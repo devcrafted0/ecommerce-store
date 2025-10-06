@@ -107,6 +107,7 @@ export const User = mongoose.model("User", userSchema);
 5. add videos (videos wil be published like youtube and not just for the products) of their products for demo
 6. ⚠ Cannot switch back to the user mode for security rights
 7. While Uploading the videos can be able to attach the product link of their own published products
+8. Seller can both purchase and sell the things
 
 ----> Seller things <----
 1. Seller can recive the reviews from the users
@@ -122,6 +123,7 @@ export const User = mongoose.model("User", userSchema);
 5. also can switch to the seller at any time
 6. whitelist the products so that show up on the videos
 7. can visit the products page
+8. Only be able to purchase the things
 
 ----> User things <----
 
