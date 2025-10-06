@@ -96,3 +96,35 @@ userSchema.methods.generateRefreshToken = function () {
 };
 
 export const User = mongoose.model("User", userSchema);
+
+/* 
+
+----> Seller Rights <----  
+1. Publish A Product
+2. Recieve the orders
+3. set the status of the orders
+4. remove the products 
+5. add videos (videos wil be published like youtube and not just for the products) of their products for demo
+6. ⚠ Cannot switch back to the user mode for security rights
+7. While Uploading the videos can be able to attach the product link of their own published products
+
+----> Seller things <----
+1. Seller can recive the reviews from the users
+2. views , like , comments to their videos
+3. get ratings
+4. Reports from the users
+
+----> User Rights <----
+1. User can Follow to the seller
+2. User can watch the videos
+3. give likes , comments , views
+4. give reviews to the recieved products
+5. also can switch to the seller at any time
+6. whitelist the products so that show up on the videos
+7. can visit the products page
+
+----> User things <----
+
+1. User cannot published the video
+
+*/
