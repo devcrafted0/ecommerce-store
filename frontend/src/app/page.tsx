@@ -2,11 +2,9 @@
 
 import FilterMainPage from "@/components/FilterMainPage";
 import Navabar from "@/components/Navabar";
-import BodyPortal from "@/components/utils/BodyPortal";
-import Image from "next/image";
-import Link from "next/link";
 import { useState } from "react";
 import { FaLongArrowAltLeft, FaLongArrowAltRight } from "react-icons/fa";
+import ImageSwiper from "@/components/main/ImageSwiper";
 
 const Page = () => {
 
@@ -22,8 +20,18 @@ const Page = () => {
           {sidebarOpen ? <FaLongArrowAltLeft /> : <FaLongArrowAltRight />}
         </div>
 
-        <div className={`absolute rounded-xl bg-[#f3e8ff] [@media(max-width:849px)]:hidden ${sidebarOpen ? 'block' : 'hidden'} transition-all duration-200 [@media(min-width:1445px)]:block [@media(min-width:1445px)]:bg-white [@media(min-width:1445px)]:border-r [@media(min-width:1445px)]:border-gray-200 [@media(min-width:1445px)]:rounded-none [@media(min-width:1445px)]:h-full`}>
-          <FilterMainPage/>
+        
+
+        <div className="flex flex-row h-full">          
+          
+          <div className={`absolute z-50 rounded-xl bg-[#f3e8ff] [@media(max-width:849px)]:hidden ${sidebarOpen ? 'block' : 'hidden'} transition-all duration-200 [@media(min-width:1445px)]:block [@media(min-width:1445px)]:bg-white [@media(min-width:1445px)]:border-r [@media(min-width:1445px)]:border-gray-200 [@media(min-width:1445px)]:rounded-none [@media(min-width:1445px)]:h-full [@media(min-width:1445px)]:relative`}>
+            <FilterMainPage/>
+          </div>
+          
+          <div className="p-4">
+            <ImageSwiper images={['/deals1.png', '/deals2.png' , '/deals3.png']}/>
+          </div>
+          
         </div>
       </div>
     </div>
