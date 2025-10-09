@@ -53,7 +53,7 @@ const userSchema = new Schema(
       type: String,
       enum: ["seller", "user", "admin"],
       default: "user",
-    },
+    }
   },
   { timestamps: true }
 );
