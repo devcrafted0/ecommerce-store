@@ -23,9 +23,9 @@ const generateRefreshAndAccessToknes = async (userId) => {
 }
 
 const registerUser = asyncHandler(async (req, res) => {
-  const { email, fullName, password, username } = req.body;
+  const { email, firstname, lastname, password, username } = req.body;
 
-  if ([email, fullName, password, username].some((field) => field?.trim() === "")){
+  if ([email, firstname , lastname, password, username].some((field) => field?.trim() === "")){
     throw new ApiError(400, "All Fields Are Required");
   }
 
@@ -67,6 +67,8 @@ const registerUser = asyncHandler(async (req, res) => {
     throw new ApiError(400, "Error While Uploading Avatar file");
   }
 
+  const fullName = {firstname , lastname};
+
   const user = await User.create({
     fullName,
     avatar: avatar.url,
@@ -100,7 +102,11 @@ const loginUser  = asyncHandler(async (req,res) => {
     $or : [{username}, {email}],
   })
 
-  const isPasswordValid = user.isPasswordCorrect(password);
+  if(!user){
+    throw new ApiError(400, 'User not exists');
+  }
+
+  const isPasswordValid = await user.isPasswordCorrect(password);
 
   if(!isPasswordValid){
     throw new ApiError(401, 'Invalid Credentials');
