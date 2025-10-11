@@ -102,6 +102,10 @@ const loginUser  = asyncHandler(async (req,res) => {
     $or : [{username}, {email}],
   })
 
+  if (!user.isVerified){
+    throw new ApiError(400, 'Please verify your email first');
+  }
+
   if(!user){
     throw new ApiError(400, 'User not exists');
   }
@@ -375,6 +379,54 @@ const getUserChannelProfile = asyncHandler(async (req , res) => {
   
 })
 
+// OTP Setups
+
+export const verifyOtp = async (req, res) => {
+  try {
+    const { email, otp } = await req.body;
+
+    const user = await User.findOne({ email });
+    if (!user) return res.status(404).json({ message: "User not found" });
+
+    if (user.isVerified)
+      return res.status(400).json({ message: "User already verified" });
+
+    if (user.otp !== otp)
+      return res.status(400).json({ message: "Invalid OTP" });
+
+    if (user.otpExpires < Date.now())
+      return res.status(400).json({ message: "OTP expired" });
+
+    user.isVerified = true;
+    user.otp = null;
+    user.otpExpires = null;
+    await user.save();
+
+    res.status(200).json({ message: "Email verified successfully!" });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Server error" });
+  }
+};
+
+export const resendOtp = async (req, res) => {
+  try {
+    const { email } =await req.body;
+    const user = await User.findOne({ email });
+    if (!user) return res.status(404).json({ message: "User not found" });
+
+    const otp = crypto.randomInt(100000, 999999).toString();
+    user.otp = otp;
+    user.otpExpires = Date.now() + 5 * 60 * 1000;
+    await user.save();
+
+    await sendOtpEmail(email, otp);
+
+    res.json({ message: "New OTP sent to your email" });
+  } catch (err) {
+    res.status(500).json({ message: "Server error" });
+  }
+};
 
 export { registerUser, loginUser,  logoutUser, refreshAccessToken, changeCurrentPassword, getCurrentUser, updateCurrentUser, updateUserAvatar, updateUserCoverImage, getUserChannelProfile };
 

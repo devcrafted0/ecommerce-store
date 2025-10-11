@@ -10,7 +10,7 @@ import React, {
   ReactNode,
 } from "react";
 
-type Response = {
+export type Response = {
   message? : string;
   success? : boolean;
   statusCode? : number;
@@ -22,6 +22,8 @@ interface AuthContextType {
   setEmail: React.Dispatch<React.SetStateAction<string>>;
   response: Response;
   setResponse: React.Dispatch<React.SetStateAction<Response>>;
+  otpResponse: Response;
+  setOtpResponse: React.Dispatch<React.SetStateAction<Response>>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -29,8 +31,9 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [email, setEmail] = useState<string>('');
   const [response , setResponse] = useState<Response>({});
+  const [otpResponse  , setOtpResponse] = useState<Response>({});
 
-  const value = useMemo(() => ({ email, setEmail , response , setResponse }), [email , response]);
+  const value = useMemo(() => ({ email, setEmail , response , setResponse , otpResponse , setOtpResponse }), [email , response , otpResponse]);
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }
