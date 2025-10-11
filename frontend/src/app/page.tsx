@@ -1,7 +1,6 @@
 "use client";
 
 import FilterMainPage from "@/components/FilterMainPage";
-import Navabar from "@/components/Navabar";
 import { useState } from "react";
 import { FaLongArrowAltLeft, FaLongArrowAltRight } from "react-icons/fa";
 import ImageSwiper from "@/components/main/ImageSwiper";
@@ -13,9 +12,7 @@ const Page = () => {
 
   return (
     <div className="flex flex-col h-screen">
-      <Navabar />
-
-      <div className="relative h-full">
+      <div className="relative">
         {/* Filter Button With Arrow */}
         <div
           className="m-5  bg-gray-200/60 inline-flex gap-2 justify-center items-center px-4 py-2 rounded-full [@media(max-width:849px)]:hidden [@media(min-width:1445px)]:hidden text-black font-semibold cursor-pointer hover:bg-gray-100"

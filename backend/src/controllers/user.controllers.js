@@ -34,45 +34,34 @@ const registerUser = asyncHandler(async (req, res) => {
   }
 
   const existingEmail = await User.findOne({ email });
+
   if (existingEmail) {
     throw new ApiError(409, "Account Already Exists.");
   }
 
   const existingUsername = await User.findOne({ username : username.toLowerCase() });
+
   if (existingUsername) {
     throw new ApiError(409, "Username already exists.");
   }
 
-  const avatarLocalPath = req.files?.avatar[0]?.path;
-
-  let coverImageLocalPath;
-  if(req.files && Array.isArray(req.files.coverImage) && req.files.coverImage.length > 0){
-    coverImageLocalPath = req.files.coverImage[0].path;
-  }
-
-  if (!avatarLocalPath) {
-    throw new ApiError(400, "Avatar File Is Required");
-  }
-
-  const avatar = await uploadOnCloudinary(avatarLocalPath);
-  let coverImage = {
-    url : 'No Cover Image',
-  };
-
-  if (coverImageLocalPath) {
-    coverImage = await uploadOnCloudinary(coverImageLocalPath);
-  }
-
-  if (!avatar) {
-    throw new ApiError(400, "Error While Uploading Avatar file");
-  }
-
   const fullName = {firstname , lastname};
+  
+  const vibrantColors = [
+  "F44336", "E91E63", "9C27B0", "673AB7", "3F51B5", "2196F3",
+  "03A9F4", "009688", "4CAF50", "8BC34A", "CDDC39", "FFC107",
+  "FF9800", "FF5722", "795548", "607D8B",
+]
+  const randomColor = vibrantColors[Math.floor(Math.random() * vibrantColors.length)];
+
+  const firstLetter = username.charAt(0).toUpperCase();
+
+  const defaultAvatar = `https://ui-avatars.com/api/?name=${firstLetter}&length=1&background=${randomColor}&color=ffffff`;
 
   const user = await User.create({
     fullName,
-    avatar: avatar.url,
-    coverImage: coverImage?.url || '',
+    avatar: defaultAvatar,
+    coverImage: 'No Cover Image',
     email,
     password,
     username: username.toLowerCase(),
@@ -377,3 +366,36 @@ const getUserChannelProfile = asyncHandler(async (req , res) => {
 
 
 export { registerUser, loginUser,  logoutUser, refreshAccessToken, changeCurrentPassword, getCurrentUser, updateCurrentUser, updateUserAvatar, updateUserCoverImage, getUserChannelProfile };
+
+
+/*
+
+// For later file handeling
+let avatarLocalPath;
+
+  if(req.files && Array.isArray(req.files.avatar)){
+    avatarLocalPath = req.files?.avatar[0]?.path;
+  }
+
+  if (!avatarLocalPath) {
+    throw new ApiError(400, "Avatar File Is Required");
+  }
+
+  let coverImageLocalPath;
+  if(req.files && Array.isArray(req.files.coverImage) && req.files.coverImage.length > 0){
+    coverImageLocalPath = req.files.coverImage[0].path;
+  }
+
+  const avatar = await uploadOnCloudinary(avatarLocalPath);
+  let coverImage = {
+    url : 'No Cover Image',
+  };
+
+  if (coverImageLocalPath) {
+    coverImage = await uploadOnCloudinary(coverImageLocalPath);
+  }
+
+  if (!avatar) {
+    throw new ApiError(400, "Error While Uploading Avatar file");
+  }
+*/

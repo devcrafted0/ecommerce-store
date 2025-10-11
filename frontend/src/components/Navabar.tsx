@@ -12,7 +12,7 @@ const Navabar = () => {
     const [isOpen , setIsOpen] = useState<boolean>(false);
 
   return (
-    <nav className="w-screen bg-[#FEFEFE] border-b border-gray-200 pb-4">
+    <nav className="bg-[#FEFEFE] border-b border-gray-200 pb-4">
         <div>
             <div className="pt-8 w-full max-w-[90vw] m-auto flex justify-between items-center">
 
@@ -41,10 +41,10 @@ const Navabar = () => {
                         </div>
                     </button>
 
-                    <button className="transition-colors duration-200 cursor-pointer hover:bg-primary/10 ml-8 my-2 px-6 py-3 flex items-center gap-2 border-primary border rounded-full">
+                    <Link href='/login' className="transition-colors duration-200 cursor-pointer hover:bg-primary/10 ml-8 my-2 px-6 py-3 flex items-center gap-2 border-primary border rounded-full">
                         <Image className="w-4 h-4" src={assets.user} alt="user" width={50} height={50}/>
                         <span className="font-bold">Login</span>
-                    </button>
+                    </Link>
                 </div>
             </div>
 
