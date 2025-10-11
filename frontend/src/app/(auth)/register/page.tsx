@@ -8,6 +8,27 @@ import FormStatus from "@/components/main/FormStatus";
 import { useAuth } from "@/context/authContext";
 import { useRouter } from "next/navigation";
 
+type RegisterError = {
+  username? : string,
+  email? : string,
+  password? : string,
+  confirmPassword? : string
+}
+
+interface TouchedFields {
+  email: boolean;
+  username: boolean;
+  password: boolean;
+  confirmPassword: boolean;
+}
+
+interface FormDataForErrors {
+  email: string;
+  username: string;
+  password: string;
+  confirmPassword: string;
+}
+
 const page = () => {
   // const [email, setEmail] = useState<string>("");
   const {email , setEmail, response , setResponse} = useAuth();
@@ -22,9 +43,52 @@ const page = () => {
   const [showConfirmPassword, setShowConfirmPassword] =
     useState<boolean>(false);
 
-  const [matchedPassword, setMatchedPassword] = useState<boolean>(false);
-
   const [loading, setLoading] = useState<boolean>(false);
+
+  const [errors, setErrors] = useState<RegisterError>({})
+  const [touched, setTouched] = useState<TouchedFields>({
+    email: false,
+    username: false,
+    password: false,
+    confirmPassword: false,
+  });
+
+  const validate = (data: FormDataForErrors, touched: TouchedFields): RegisterError => {
+    const newErrors: RegisterError = {};
+
+    // Email validation
+    if (touched.email) {
+      if (!data.email.trim()) newErrors.email = "Email is required";
+      else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(data.email))
+        newErrors.email = "Invalid email address";
+    }
+
+    // Username validation
+    if (touched.username) {
+      if (!data.username.trim()) newErrors.username = "Username is required";
+      else if (!/^[a-zA-Z0-9_]{3,20}$/.test(data.username))
+        newErrors.username = "Username must be 3–20 characters, letters/numbers only";
+    }
+
+    // Password validation
+    if (touched.password) {
+      if (!data.password.trim()) newErrors.password = "Password is required";
+      else if (data.password.length < 8)
+        newErrors.password = "Password must be at least 8 characters long";
+    }
+
+    // Confirm Password validation
+    if (touched.confirmPassword) {
+      if (data.confirmPassword !== data.password)
+        newErrors.confirmPassword = "Passwords do not match";
+    }
+
+    return newErrors;
+  };
+
+  useEffect(() => {
+    setErrors(validate({email , password ,confirmPassword , username}, touched));
+  }, [email,  touched , password , confirmPassword , username]);
 
   const router = useRouter();
 
@@ -41,14 +105,6 @@ const page = () => {
   }, [response, email, firstname, lastname, username, password, confirmPassword]);
 
   useEffect(()=>{
-    if (password === confirmPassword) {
-    setMatchedPassword(true);
-    } else {
-    setMatchedPassword(false);
-    }
-  }, [password , confirmPassword])
-
-  useEffect(()=>{
     if(response.statusCode === 201){
       router.push('/otp');
     }
@@ -58,29 +114,36 @@ const page = () => {
     e.preventDefault();    
     setLoading(true);
 
-    try {
-      const res = await fetch('http://localhost:8000/api/v1/users/register', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({email , firstname , lastname , username , password}),
-      });
+    const keys = Object.keys(errors);
+    const objectLength = keys.length;
 
-      const statusCode = res.status;
+    if(objectLength > 0){
 
-      const data = await res.json();
+    } else{
+      try {
+        const res = await fetch('http://localhost:8000/api/v1/users/register', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({email , firstname , lastname , username , password}),
+        });
 
-      setResponse({...data , statusCode});
-      setLoading(false);
-    } catch (error : unknown) {
-      if(error instanceof Error){
-        setResponse((prev)=>(
-          {
-            ...prev,
-            message : error.message
-          }
-        ))
+        const statusCode = res.status;
+
+        const data = await res.json();
+
+        setResponse({...data , statusCode});
+        setLoading(false);
+      } catch (error : unknown) {
+        if(error instanceof Error){
+          setResponse((prev)=>(
+            {
+              ...prev,
+              message : error.message
+            }
+          ))
+        }
       }
     }
   };
@@ -164,8 +227,11 @@ const page = () => {
               required
               value={username}
               onChange={(e) => setUsername(e.target.value)}
+              onBlur={() => setTouched({ ...touched, username: true })}
             />
           </div>
+
+          {errors.username && <span className="mt-3 text-sm text-center text-red-500">{errors.username}</span>}
 
           {/* Email */}
           <div className="has-[:focus]:border-primary/90 transition-colors duration-150 flex items-center w-full bg-transparent border border-gray-300/60 h-12 rounded-full overflow-hidden px-6 gap-2 mt-6">
@@ -190,8 +256,11 @@ const page = () => {
               required
               value={email}
               onChange={(e) => setEmail(e.target.value)}
+              onBlur={() => setTouched({ ...touched, email: true })}
             />
           </div>
+
+          {errors.email && <span className="text-sm mt-3 text-center text-red-500">{errors.email}</span>}
 
           {/* Password */}
           <div className="has-[:focus]:border-primary/90 transition-colors duration-150 flex items-center mt-6 w-full bg-transparent border border-gray-300/60 h-12 rounded-full overflow-hidden px-6 gap-2">
@@ -214,6 +283,7 @@ const page = () => {
               required
               value={password}
               onChange={(e) => setPassword(e.target.value)}
+              onBlur={() => setTouched({ ...touched, password: true })}
             />
             <span
               onClick={() => setShowPassword(!showPassword)}
@@ -222,6 +292,8 @@ const page = () => {
               {showPassword ? <Eye size={20} /> : <EyeOff size={20} />}
             </span>
           </div>
+
+          {errors.password && <span className="text-sm mt-3 text-center text-red-500">{errors.password}</span>}
 
           {/* Confirm Password */}
           <div className="has-[:focus]:border-primary/90 transition-colors duration-150 flex items-center mt-6 w-full bg-transparent border border-gray-300/60 h-12 rounded-full overflow-hidden px-6 gap-2">
@@ -244,6 +316,7 @@ const page = () => {
               required
               value={confirmPassword}
               onChange={(e) => setConfirmPassword(e.target.value)}
+              onBlur={() => setTouched({ ...touched, confirmPassword: true })}
             />
             <span
               onClick={() => setShowConfirmPassword(!showConfirmPassword)}
@@ -253,11 +326,7 @@ const page = () => {
             </span>
           </div>
 
-          {matchedPassword ? null : (
-            <div className="text-red-500 text-sm my-3">
-              Password and Confirm Password does not match
-            </div>
-          )}
+          {errors.confirmPassword && <span className="text-sm mt-3 text-center text-red-500">{errors.confirmPassword}</span>}
 
           <div className="w-full flex items-center justify-between mt-8 text-gray-500/80">
             <div className="flex items-center gap-2">
