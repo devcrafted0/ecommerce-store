@@ -2,7 +2,7 @@
 
 import assets from "@/assets/assets";
 import Image from "next/image";
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { AtSign, Eye, EyeOff, IdCard, User } from "lucide-react";
 import FormStatus from "@/components/main/FormStatus";
 import { useAuth } from "@/context/authContext";
@@ -177,8 +177,8 @@ const page = () => {
               xmlns="http://www.w3.org/2000/svg"
             >
               <path
-                fill-rule="evenodd"
-                clip-rule="evenodd"
+                fillRule="evenodd"
+                clipRule="evenodd"
                 d="M0 .55.571 0H15.43l.57.55v9.9l-.571.55H.57L0 10.45zm1.143 1.138V9.9h13.714V1.69l-6.503 4.8h-.697zM13.749 1.1H2.25L8 5.356z"
                 fill="#6B7280"
               />
