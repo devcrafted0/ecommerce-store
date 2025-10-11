@@ -7,7 +7,7 @@ export default function NavbarWrapper() {
   const pathname = usePathname();
 
   // Define routes where Navbar should be hidden
-  const hideNavbarRoutes = ['/login', '/register'];
+  const hideNavbarRoutes = ['/login', '/register', '/otp'];
 
   const shouldHideNavbar = hideNavbarRoutes.some(route =>
     pathname.startsWith(route)

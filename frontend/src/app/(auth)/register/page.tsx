@@ -5,16 +5,12 @@ import Image from "next/image";
 import React, { useEffect, useRef, useState } from "react";
 import { AtSign, Eye, EyeOff, IdCard, User } from "lucide-react";
 import FormStatus from "@/components/main/FormStatus";
-
-type Response = {
-  message? : string;
-  success? : boolean;
-  statusCode? : number;
-  data? : object
-}
+import { useAuth } from "@/context/authContext";
+import { useRouter } from "next/navigation";
 
 const page = () => {
-  const [email, setEmail] = useState<string>("");
+  // const [email, setEmail] = useState<string>("");
+  const {email , setEmail, response , setResponse} = useAuth();
   const [firstname, setFirstname] = useState<string>("");
   const [lastname, setLastname] = useState<string>("");
   const [username, setUsername] = useState<string>("");
@@ -30,14 +26,9 @@ const page = () => {
 
   const [loading, setLoading] = useState<boolean>(false);
 
-  const [response , setResponse] = useState<Response>({});
+  const router = useRouter();
 
   useEffect(() => {
-    if (password === confirmPassword) {
-      setMatchedPassword(true);
-    } else {
-      setMatchedPassword(false);
-    }
     console.log({
       email,
       firstname,
@@ -45,8 +36,23 @@ const page = () => {
       username,
       password,
       confirmPassword,
+      response
     });
-  }, [email, firstname, lastname, username, password, confirmPassword]);
+  }, [response, email, firstname, lastname, username, password, confirmPassword]);
+
+  useEffect(()=>{
+    if (password === confirmPassword) {
+    setMatchedPassword(true);
+    } else {
+    setMatchedPassword(false);
+    }
+  }, [password , confirmPassword])
+
+  useEffect(()=>{
+    if(response.statusCode === 201){
+      router.push('/otp');
+    }
+  }, [response]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();    
@@ -61,20 +67,12 @@ const page = () => {
         body: JSON.stringify({email , firstname , lastname , username , password}),
       });
 
+      const statusCode = res.status;
+
       const data = await res.json();
-      setResponse(data);
-      
+
+      setResponse({...data , statusCode});
       setLoading(false);
-
-      if(response.success){
-        setEmail('');
-        setFirstname('');
-        setLastname('');
-        setUsername('');
-        setPassword('');
-        setConfirmPassword('');
-      }
-
     } catch (error : unknown) {
       if(error instanceof Error){
         setResponse((prev)=>(
@@ -96,8 +94,8 @@ const page = () => {
           className="md:w-96 w-80 flex flex-col items-center justify-center"
         >
           <div className="w-full">
-          {response.message && <FormStatus success={response.success} text={response.message}/>}
-        </div>
+            {response.statusCode !== 201 && <FormStatus success={response.success} text={response.message!}/>}
+          </div>
           <h2 className="text-4xl text-gray-900 font-medium">Register</h2>
           <p className="text-sm text-gray-500/90 mt-3">
             Hy There! Please create a acccount to continue

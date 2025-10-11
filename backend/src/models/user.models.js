@@ -53,7 +53,10 @@ const userSchema = new Schema(
       type: String,
       enum: ["seller", "user", "admin"],
       default: "user",
-    }
+    },
+    isVerified : {type : Boolean , default : false},
+    otp : String,
+    otpExpires : Date,
   },
   { timestamps: true }
 );

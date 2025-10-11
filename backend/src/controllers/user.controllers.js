@@ -4,6 +4,8 @@ import { User } from "../models/user.models.js";
 import { uploadOnCloudinary } from "../utils/cloudinary.js";
 import {ApiResponse} from '../utils/ApiResponse.js'
 import jwt from 'jsonwebtoken'
+import * as crypto from 'crypto';
+import { sendOtpEmail } from '../utils/sendEmail.js'
 
 const generateRefreshAndAccessToknes = async (userId) => {
   try {
@@ -58,6 +60,9 @@ const registerUser = asyncHandler(async (req, res) => {
 
   const defaultAvatar = `https://ui-avatars.com/api/?name=${firstLetter}&length=1&background=${randomColor}&color=ffffff`;
 
+  // 6-Digit OTP Setup
+  const otp = crypto.randomInt(100000, 999999).toString();
+
   const user = await User.create({
     fullName,
     avatar: defaultAvatar,
@@ -65,10 +70,16 @@ const registerUser = asyncHandler(async (req, res) => {
     email,
     password,
     username: username.toLowerCase(),
+    otp,
+    otpExpires: Date.now() + 5 * 60 * 1000, // 5 minutes
   });
 
+  await sendOtpEmail(email, otp);
+
+  return res.status(201).json({message: "OTP sent to your email for verification" });
+
   const createdUser = await User.findById(user._id).select(
-    "-password -refreshToken"
+    "-password -refreshToken -otp -otpExpires"
   );
 
   if (!createdUser) {
