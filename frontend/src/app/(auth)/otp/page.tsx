@@ -2,20 +2,41 @@
 
 import FormStatus from "@/components/main/FormStatus";
 import OtpInput from "@/components/OtpInput";
+import ResendOTPButton from "@/components/ResendOTPButton";
 import { useAuth } from "@/context/authContext"
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 const page = () => {
 
     const {email , setEmail , response , setResponse , otpResponse , setOtpResponse} = useAuth();
     const router = useRouter();
+    
+    const hasRun = useRef<boolean>(false);
 
-    
-    
-    if(email === ''){
-        router.push('/')
+    const resendOTP = async () => {
+      const res = await fetch('http://localhost:8000/api/v1/users/resend-otp', {
+        method : 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({email}),
+      })
+      const statusCode = await res.status;
+      const data = await res.json();
+
+      setResponse({...data , statusCode})
     }
+    
+    useEffect(()=>{
+      if(hasRun.current) return;
+      hasRun.current = true;
+      if(email === ''){
+        router.push('/')
+      } else {
+        resendOTP();
+      }
+    }, []);
 
     const [otpValue, setOtpValue] = useState<string>('');
 
@@ -75,6 +96,10 @@ const page = () => {
                 className="cursor-pointer w-full py-2.5 rounded-lg bg-primary hover:opacity-90 text-white font-medium transition-colors duration-200">
                 Verify
               </button>
+            </div>
+
+            <div className="my-3 w-full">
+              <ResendOTPButton onResend={()=>resendOTP()}/>
             </div>
           </div>
         </div>

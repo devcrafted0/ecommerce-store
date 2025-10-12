@@ -74,7 +74,7 @@ const registerUser = asyncHandler(async (req, res) => {
     otpExpires: Date.now() + 5 * 60 * 1000, // 5 minutes
   });
 
-  await sendOtpEmail(email, otp);
+  // await sendOtpEmail(email, otp);
 
   return res.status(201).json({message: "OTP sent to your email for verification" });
 
@@ -92,28 +92,32 @@ const registerUser = asyncHandler(async (req, res) => {
 });
 
 const loginUser  = asyncHandler(async (req,res) => {
-  const {username , email , password} = req.body;
+  const {email , password} = req.body;
 
-  if (!(username || email)) {
-    throw new ApiError(400, 'Username or email is required');
+  if(!email || !password){
+    throw new ApiError(400 , 'Email/usernam and Password is required')
   }
 
-  const user = await User.findOne({
-    $or : [{username}, {email}],
-  })
+  const isEmail = email.includes("@");
 
-  if (!user.isVerified){
-    throw new ApiError(400, 'Please verify your email first');
-  }
+  const user = await User.findOne( isEmail ? { email } : { username: email });
 
   if(!user){
-    throw new ApiError(400, 'User not exists');
+    throw new ApiError(400, "Account not exists")
   }
 
   const isPasswordValid = await user.isPasswordCorrect(password);
 
   if(!isPasswordValid){
     throw new ApiError(401, 'Invalid Credentials');
+  }
+
+  if (!user.isVerified){
+    return res.status(401).json({
+      success : false,
+      message : 'Please verify your account first',
+      isVerified : false
+    })
   }
 
   const {accessToken , refreshToken} = await generateRefreshAndAccessToknes(user._id);
@@ -385,7 +389,13 @@ export const verifyOtp = async (req, res) => {
   try {
     const { email, otp } = await req.body;
 
-    const user = await User.findOne({ email });
+    if (!email) {
+      return res.status(400).json({ message: "Email or username is required" });
+    }
+    
+    const isEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+    const user = await User.findOne(isEmail ? { email } : { username: email });
+
     if (!user) return res.status(404).json({ message: "User not found" });
 
     if (user.isVerified)
@@ -411,18 +421,31 @@ export const verifyOtp = async (req, res) => {
 
 export const resendOtp = async (req, res) => {
   try {
-    const { email } =await req.body;
-    const user = await User.findOne({ email });
+    const { email } = req.body;
+
+    if (!email) {
+      return res.status(400).json({ message: "Email or username is required" });
+    }
+
+    const isEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+    const user = await User.findOne(isEmail ? { email } : { username: email });
+
     if (!user) return res.status(404).json({ message: "User not found" });
+
+    const emailConfirm = user.email;
 
     const otp = crypto.randomInt(100000, 999999).toString();
     user.otp = otp;
     user.otpExpires = Date.now() + 5 * 60 * 1000;
     await user.save();
 
-    await sendOtpEmail(email, otp);
-
-    res.json({ message: "New OTP sent to your email" });
+    try {
+      await sendOtpEmail(emailConfirm, otp);
+    } catch (mailErr) {
+      console.error("Email send failed:", mailErr.message);
+      return res.status(500).json({ message: "Failed to send OTP email" });
+    }
+    res.status(201).json({ message: "New OTP sent to your email" });
   } catch (err) {
     res.status(500).json({ message: "Server error" });
   }

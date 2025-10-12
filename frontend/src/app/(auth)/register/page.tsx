@@ -118,7 +118,7 @@ const page = () => {
     const objectLength = keys.length;
 
     if(objectLength > 0){
-
+      setLoading(false);
     } else{
       try {
         const res = await fetch('http://localhost:8000/api/v1/users/register', {
@@ -328,7 +328,18 @@ const page = () => {
 
           {errors.confirmPassword && <span className="text-sm mt-3 text-center text-red-500">{errors.confirmPassword}</span>}
 
-          <div className="w-full flex items-center justify-between mt-8 text-gray-500/80">
+          <div className="w-full flex flex-col mt-8 text-gray-500/80">
+            <div className="flex items-center gap-2">
+              <input
+                className="h-5 accent-primary"
+                type="checkbox"
+                id="checkbox"
+                required
+              />
+              <label className="text-sm" htmlFor="checkbox">
+                I agree to the Terms of Service and Privacy Policy
+              </label>
+            </div>
             <div className="flex items-center gap-2">
               <input
                 className="h-5 accent-primary"
@@ -339,9 +350,8 @@ const page = () => {
                 Remember me
               </label>
             </div>
-            <a className="text-sm underline" href="#">
-              Forgot password?
-            </a>
+            
+
           </div>
 
           <button
