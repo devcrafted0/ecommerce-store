@@ -1,7 +1,7 @@
 // context/UserContext.tsx
 "use client";
 
-import { createContext, useContext, useMemo, useState } from "react";
+import { createContext, useContext, useEffect, useMemo, useState } from "react";
 
 type User = {
   _id: string;
@@ -22,6 +22,22 @@ const UserContext = createContext<UserContextType>({
 
 export const UserProvider = ({ children }: { children: React.ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
+
+  const fetchUser = async() => {
+    const res = await fetch('http://localhost:8000/api/v1/users/me', {
+      credentials: "include",
+    });
+    const user = await res.json();
+    setUser(user.data);
+  }
+
+  useEffect(()=>{
+    fetchUser();
+  }, []);
+
+  useEffect(()=>{
+    console.log(user);
+  }, [user])
 
    const value = useMemo(() => ({ user , setUser }), [user]);
 
