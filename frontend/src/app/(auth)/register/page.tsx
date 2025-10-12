@@ -7,6 +7,7 @@ import { AtSign, Eye, EyeOff, IdCard, User } from "lucide-react";
 import FormStatus from "@/components/main/FormStatus";
 import { useAuth } from "@/context/authContext";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 
 type RegisterError = {
   username? : string,
@@ -337,7 +338,7 @@ const page = () => {
                 required
               />
               <label className="text-sm" htmlFor="checkbox">
-                I agree to the Terms of Service and Privacy Policy
+                I agree to the <Link className="font-semibold hover:underline" href='/termsofservice'>Terms of Service</Link> and <Link className="font-semibold hover:underline" href='privacy-policy'>Privacy Policy</Link>
               </label>
             </div>
             <div className="flex items-center gap-2">
@@ -362,10 +363,10 @@ const page = () => {
             {loading ? 'Processing...' : 'Sign Up'}
           </button>
           <p className="text-gray-500/90 text-sm mt-4">
-            Don’t have an account?{" "}
-            <a className="text-primary hover:underline" href="#">
-              Sign up
-            </a>
+            Already have an account?{" "}
+            <Link  href="/login" className="text-primary hover:underline" >
+              Login
+            </Link>
           </p>
         </form>
       </div>

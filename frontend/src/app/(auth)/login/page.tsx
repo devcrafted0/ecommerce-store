@@ -4,6 +4,7 @@ import FormStatus from "@/components/main/FormStatus";
 import { Response, useAuth } from "@/context/authContext"
 import { useUser } from "@/context/userContext";
 import { Eye, EyeOff } from "lucide-react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
@@ -133,6 +134,12 @@ const page = () => {
           >
             {loading ? 'Processing...' : 'Loign'}
         </button>
+        <p className="text-gray-500/90 text-sm mt-4">
+            Don't have an account?{" "}
+            <Link  href="/register" className="text-primary hover:underline" >
+              Register
+            </Link>
+          </p>
       </form>
 
     </div>
