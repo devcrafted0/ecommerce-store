@@ -26,7 +26,7 @@ const page = () => {
     setLoading(true);
 
     try {
-      const res = await fetch('http://localhost:8000/api/v1/users/login', {
+      const res = await fetch('/api/v1/users/login', {
         method: "POST",
         credentials: "include",
         headers: { "Content-Type": "application/json" },

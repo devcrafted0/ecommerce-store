@@ -15,7 +15,7 @@ const page = () => {
     const hasRun = useRef<boolean>(false);
 
     const resendOTP = async () => {
-      const res = await fetch('http://localhost:8000/api/v1/users/resend-otp', {
+      const res = await fetch('/api/v1/users/resend-otp', {
         method : 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -52,7 +52,7 @@ const page = () => {
 
     const handleSubmit = async () => {
       try {
-        const res = await fetch('http://localhost:8000/api/v1/users/verify-otp', {
+        const res = await fetch('/api/v1/users/verify-otp', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

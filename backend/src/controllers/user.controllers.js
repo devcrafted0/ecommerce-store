@@ -165,6 +165,16 @@ const logoutUser = asyncHandler(async (req, res) => {
   )
 });
 
+const getAnyUser = asyncHandler(async(req , res)=>{
+  
+  const user = await User.findById(req.params.id).select('-password -refreshToken -updatedAt -otp -otpExpires -email -watchHistory -isVerified');
+
+  if(!user){
+    throw new ApiError(400, 'User not found');
+  }
+  res.status(200).json(new ApiResponse(200 , user))
+})
+
 const refreshAccessToken = asyncHandler(async (req , res) => {
   const incomingRefreshToken = req.cookies.refreshToken || req.body.refreshToken;
 
@@ -451,7 +461,7 @@ export const resendOtp = async (req, res) => {
   }
 };
 
-export { registerUser, loginUser,  logoutUser, refreshAccessToken, changeCurrentPassword, getCurrentUser, updateCurrentUser, updateUserAvatar, updateUserCoverImage, getUserChannelProfile };
+export { registerUser, loginUser,  logoutUser, refreshAccessToken, changeCurrentPassword, getCurrentUser, updateCurrentUser, updateUserAvatar, updateUserCoverImage, getUserChannelProfile , getAnyUser };
 
 
 /*
