@@ -7,9 +7,9 @@ export type User = {
   _id: string;
   username: string;
   email: string;
-  fullname : {
+  fullName : {
     firstname : string; 
-    lastanme : string
+    lastname : string
   };
   isVerified : boolean;
   avatar : string;
@@ -45,7 +45,7 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
   }, []);
 
   useEffect(()=>{
-    console.log(user);
+    // console.log(user);
   }, [user])
 
    const value = useMemo(() => ({ user , setUser }), [user]);

@@ -5,7 +5,7 @@ const deals3 : string = '/assets/deals3.png'
 const search : string = '/assets/Search.png'
 const user : string = '/assets/user.png'
 const googleLogo : string = '/assets/googleLogo.svg'
-
+const noCoverImage : string = '/assets/noCoverImage.jpg'
 
 export interface IUser {
   _id: string;
@@ -257,4 +257,4 @@ export const products: IProduct[] = [
   },
 ];
 
-export default {logo , deals1 , deals2 , deals3 , search ,user, googleLogo}
+export default {logo , deals1 , deals2 , deals3 , search ,user, googleLogo, noCoverImage}
