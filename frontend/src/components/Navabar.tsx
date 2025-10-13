@@ -6,10 +6,13 @@ import { IoClose, IoMenuOutline  } from "react-icons/io5";
 import BodyPortal from "./utils/BodyPortal";
 import FilterMainPage from "./FilterMainPage";
 import assets from "@/assets/assets";
+import { useUser } from "@/context/userContext";
+import NavbarUser from "./NavbarUser";
 
 const Navabar = () => {
 
     const [isOpen , setIsOpen] = useState<boolean>(false);
+    const {user , setUser} = useUser();
 
   return (
     <nav className="bg-[#FEFEFE] border-b border-gray-200 pb-4">
@@ -41,10 +44,12 @@ const Navabar = () => {
                         </div>
                     </button>
 
+                    {user ? <NavbarUser/> : (
                     <Link href='/login' className="transition-colors duration-200 cursor-pointer hover:bg-primary/10 ml-8 my-2 px-6 py-3 flex items-center gap-2 border-primary border rounded-full">
                         <Image className="w-4 h-4" src={assets.user} alt="user" width={50} height={50}/>
                         <span className="font-bold">Login</span>
                     </Link>
+                    )}
                 </div>
             </div>
 

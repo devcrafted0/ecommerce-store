@@ -5,9 +5,18 @@ import { createContext, useContext, useEffect, useMemo, useState } from "react";
 
 type User = {
   _id: string;
-  email: string;
   username: string;
+  email: string;
+  fullname : {
+    firstname : string; 
+    lastanme : string
+  };
   isVerified : boolean;
+  avatar : string;
+  coverImage : string;
+  watchHistory : [];
+  role : string;
+  createdAt : Date;
 };
 
 type UserContextType = {
