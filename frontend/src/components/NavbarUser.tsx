@@ -8,7 +8,7 @@ import { useRouter } from "next/navigation";
 const NavbarUser = () => {
   const { user } = useUser();
   const [open, setOpen] = useState<boolean>(false);
-  const [dropDownData, setDropDownData] = useState<string[] | null>(null);
+  const [dropDownData, setDropDownData] = useState<{name :string ; link : string}[] | null>(null);
 
   const router = useRouter();
 
@@ -19,14 +19,18 @@ const NavbarUser = () => {
   useEffect(() => {
     if (user) {
       if (user?.role !== "seller") {
-        setDropDownData(["My Account","Switch To Seller", "Logout"]);
+        setDropDownData([
+          {name : "My Account" , link : 'my-account'},
+          {name : "Switch To Seller", link:'switchtoseller'},
+          {name : "Logout" , link : 'logout'}
+        ]);
       } else {
         setDropDownData([
-          "My Account",
-          "Profile",
-          "Dashboard",
-          "Analytics",
-          "Logout",
+          {name : "My Account", link : 'my-account'},
+          {name : "Profile", link : 'profile'},
+          {name : "Dashboard", link : 'dashboard/add-products'},
+          {name : "Analytics", link : 'analytics'},
+          {name : "Logout", link : 'logout'},
         ]);
       }
     }
@@ -81,7 +85,7 @@ const NavbarUser = () => {
                 <div className="">
                   {dropDownData.map((item, i) => (
                     <motion.div
-                      key={item}
+                      key={item.name}
                       initial={{ opacity: 0, x: -20 }}
                       animate={{ opacity: 1, x: 0 }}
                       transition={{
@@ -91,10 +95,10 @@ const NavbarUser = () => {
                       }}
                     >
                       <button
-                        onClick={() => redirect(item.replace(/\s+/g, '').toLowerCase())}
+                        onClick={() => {redirect(item.link); setOpen(false)}}
                         className="cursor-pointer w-full text-left px-8 py-4 rounded-lg text-[#F8EFFF] hover:bg-[#C93FB0] hover:text-[#FFFFFF] transition-all duration-200 "
                       >
-                        {item}
+                        {item.name}
                       </button>
                     </motion.div>
                   ))}

@@ -31,13 +31,22 @@ const UserContext = createContext<UserContextType>({
 
 export const UserProvider = ({ children }: { children: React.ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
+  const [loadingUser , setLoadingUser] = useState<boolean>(true);
 
   const fetchUser = async() => {
-    const res = await fetch('/api/v1/users/me', {
-      credentials: "include",
-    });
-    const user = await res.json();
-    setUser(user.data);
+    try {
+      const res = await fetch('/api/v1/users/me', {
+        credentials: "include",
+      });
+      if (!res.ok) throw new Error("Unauthorized");
+      
+      const user = await res.json();
+      setUser(user.data);
+    } catch (err) {
+      setUser(null);
+    } finally{
+      setLoadingUser(false);
+    }
   }
 
   useEffect(()=>{

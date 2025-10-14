@@ -2,32 +2,84 @@
 
 import { useState } from 'react';
 import { Upload, Edit2, ChevronDown, Play } from 'lucide-react';
+import axios from 'axios';
+import ProgressBar from '@/components/ProgressBar';
+import FormStatus from '@/components/main/FormStatus';
 
 export default function VideoUpload() {
-  const [videoFile, setVideoFile] = useState(null);
-  const [thumbnail, setThumbnail] = useState(null);
+
+  const [videoFile, setVideoFile] = useState<File | null>(null);
+  const [thumbnail, setThumbnail] = useState<File | null>(null);
+  
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
+  const [videoUrl, setVideoUrl] = useState<string>("");
+  const [thumbnailUrl , setThumbnailUrl] = useState<string>('');
+  const [duration , setDuration] = useState<number>(0); 
   const [tags, setTags] = useState('');
+  
   const [visibility, setVisibility] = useState('public');
-  const [expandedSection, setExpandedSection] = useState(null);
+  const [expandedSection, setExpandedSection] = useState<string | null>(null);
+  const [uploadProgress, setUploadProgress] = useState<number>(0);
+  const [thumbnailUploadProgress , setThumbnailUploadProgress] = useState<number>(0);
+  const [response , setResponse] = useState<string>('');
+  const [disabled , setDisabled] = useState<boolean>(false);
 
-  const handleFileSelect = (e, type) => {
+  const handleFileSelect = async (e : React.ChangeEvent<HTMLInputElement>, type:string) => {
+    setDisabled(false);
     const file = e.target.files?.[0];
+
     if (type === 'video') {
-      setVideoFile(file);
-    } else {
-      setThumbnail(file);
+      setVideoFile(file!);
     }
+    
+    const formData = new FormData();
+    formData.append('video', file!);
+
+    const response = await axios.post('/api/v1/video/upload', formData, {
+      onUploadProgress:(progressEvent) => {
+        const percent = Math.round((progressEvent.loaded * 100)/ progressEvent.total!);
+        setUploadProgress(percent);
+      }
+    });
+
+    setVideoUrl(response.data.videoUrl);
+    setDuration(response.data.duration);
+    setDisabled(true);
   };
 
-  const toggleSection = (section) => {
+  const handleThumbnailSelect = async (e : React.ChangeEvent<HTMLInputElement>, type : string) => {
+    const file = e.target.files?.[0];
+
+    if (type === 'thumbnail') {
+      setThumbnail(file!);
+    }
+
+    const formData = new FormData();
+    formData.append('thumbnail', file!);
+
+    const response = await axios.post('/api/v1/video/upload-thumbnail', formData, {
+      onUploadProgress:(progressEvent) => {
+        const percent = Math.round((progressEvent.loaded * 100)/ progressEvent.total!);
+        setThumbnailUploadProgress(percent);
+      }
+    });
+    setThumbnailUrl(response.data.videoUrl);
+  };
+
+  const toggleSection = (section:string | null) => {
     setExpandedSection(expandedSection === section ? null : section);
   };
+
+  const publishVideo = async() => {
+    const res = await axios.post('/api/v1/video/post-video', {title , description , videoUrl , thumbnailUrl , duration})
+    setResponse(res.data.message)
+  }
 
   return (
     <div className="min-h-screen bg-gray-50 p-6 w-full pt-20">
       <div className="max-w-6xl mx-auto">
+        {response !== '' && <FormStatus text={response} success={true}/>}
         {/* Header */}
         <div className="mb-8">
           <h1 className="text-4xl font-bold text-gray-900 mb-2">Upload Video</h1>
@@ -65,6 +117,8 @@ export default function VideoUpload() {
               {videoFile && (
                 <p className="text-sm text-green-600 font-medium">✓ Video selected: {videoFile.name}</p>
               )}
+
+              {uploadProgress !== 0 && <ProgressBar progress={uploadProgress}/>}
             </div>
 
             {/* Video Metadata */}
@@ -81,7 +135,7 @@ export default function VideoUpload() {
                     onChange={(e) => setTitle(e.target.value)}
                     placeholder="Enter video title"
                     className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-offset-0"
-                    style={{ focusOutline: 'none', '--tw-ring-color': '#B6349A' }}
+                    style={{ focusOutline: 'none', '--tw-ring-color': '#B6349A' } as React.CSSProperties}
                     onFocus={(e) => e.target.style.boxShadow = '0 0 0 2px #B6349A40'}
                     onBlur={(e) => e.target.style.boxShadow = 'none'}
                   />
@@ -97,9 +151,9 @@ export default function VideoUpload() {
                     value={description}
                     onChange={(e) => setDescription(e.target.value)}
                     placeholder="Describe your video content..."
-                    rows="4"
+                    rows={4}
                     className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2"
-                    style={{ '--tw-ring-color': '#B6349A' }}
+                    style={{ '--tw-ring-color': '#B6349A' } as React.CSSProperties}
                     onFocus={(e) => e.target.style.boxShadow = '0 0 0 2px #B6349A40'}
                     onBlur={(e) => e.target.style.boxShadow = 'none'}
                   />
@@ -117,7 +171,7 @@ export default function VideoUpload() {
                     onChange={(e) => setTags(e.target.value)}
                     placeholder="Add tags separated by commas"
                     className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2"
-                    style={{ '--tw-ring-color': '#B6349A' }}
+                    style={{ '--tw-ring-color': '#B6349A' } as React.CSSProperties}
                     onFocus={(e) => e.target.style.boxShadow = '0 0 0 2px #B6349A40'}
                     onBlur={(e) => e.target.style.boxShadow = 'none'}
                   />
@@ -143,12 +197,13 @@ export default function VideoUpload() {
                 id="thumbnail-input"
                 type="file"
                 accept="image/*"
-                onChange={(e) => handleFileSelect(e, 'thumbnail')}
+                onChange={(e) => handleThumbnailSelect(e, 'thumbnail')}
                 className="hidden"
               />
               {thumbnail && (
                 <p className="text-sm text-green-600 font-medium mt-3">✓ Thumbnail selected: {thumbnail.name}</p>
               )}
+              {thumbnailUploadProgress !== 0 && <ProgressBar progress={thumbnailUploadProgress}/>}
             </div>
           </div>
 
@@ -235,14 +290,16 @@ export default function VideoUpload() {
 
             {/* Publish Button */}
             <button
-              className="w-full py-3 px-6 rounded-full font-semibold text-white transition hover:shadow-lg transform hover:scale-105"
-              style={{ backgroundColor: '#B6349A' }}
+              onClick={()=>publishVideo()}
+              className="w-full py-3 px-6 bg-primary rounded-full font-semibold text-white transition hover:shadow-lg transform hover:scale-105 disabled:bg-gray-300 disabled:cursor-not-allowed"
+              disabled={!disabled}
             >
               Publish
             </button>
           </div>
         </div>
       </div>
+      
     </div>
   );
 }

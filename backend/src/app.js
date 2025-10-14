@@ -18,9 +18,11 @@ app.use(express.static("public"));
 app.use(cookieParser());
 
 // User Route
-
-
 import userRoute from './routes/user.routes.js'
 app.use('/api/v1/users', userRoute);
+
+// Video Route
+import videoRoute from './routes/video.routes.js'
+app.use('/api/v1/video', videoRoute);
 
 export default app;

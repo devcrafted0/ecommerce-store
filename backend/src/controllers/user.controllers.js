@@ -124,6 +124,8 @@ const loginUser  = asyncHandler(async (req,res) => {
 
   const loggedInUser = await User.findById(user._id).select('-password -refreshToken');
 
+  const { role } = loggedInUser;
+
   const options = {
     httpOnly : true,
     secure : true,
@@ -133,6 +135,7 @@ const loginUser  = asyncHandler(async (req,res) => {
   .status(200)
   .cookie("accessToken", accessToken, options)
   .cookie("refreshToken", refreshToken , options)
+  .cookie("role", role , {httpOnly : false , sameSite: "lax",})
   .json(
     new ApiResponse(
       200, 
@@ -160,7 +163,9 @@ const logoutUser = asyncHandler(async (req, res) => {
   return res
   .status(200)
   .clearCookie("accessToken", options)
-  .clearCookie("refreshToken", options).json(
+  .clearCookie("refreshToken", options)
+  .clearCookie("role", {httpOnly : false , sameSite: "lax",})
+  .json(
     new ApiResponse(200, {}, "User Logged Out")
   )
 });
@@ -207,8 +212,11 @@ const switchToSeller = asyncHandler(async (req , res) => {
     { new: true }  // returns the updated document
   ).select('-password -refreshToken');
 
-  res.status(200).json(new ApiResponse(200, user , 'Switched To Seller Mode.'));
+  const { role } = user;
 
+  res.status(200)
+  .cookie("role", role , {httpOnly : false , sameSite: "lax",})
+  .json(new ApiResponse(200, user , 'Switched To Seller Mode.'));
 })
 
 const refreshAccessToken = asyncHandler(async (req , res) => {
