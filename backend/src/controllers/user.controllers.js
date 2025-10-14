@@ -168,11 +168,47 @@ const logoutUser = asyncHandler(async (req, res) => {
 const getAnyUser = asyncHandler(async(req , res)=>{
   
   const user = await User.findById(req.params.id).select('-password -refreshToken -updatedAt -otp -otpExpires -email -watchHistory -isVerified');
+  // const user = await User.aggregate([
+  //   {
+  //     $match : {_id : new mongoose.Types.ObjectId(req.params.id)}
+  //   }, 
+  //   {
+  //     $lookup : {
+  //       from : 'videos',
+  //       localField : '_id',
+  //       foreignField : 'owner',
+  //       as : 'videos'
+  //     }
+  //   },
+  //   {
+  //     $project: {
+  //       password: 0,
+  //       refreshToken: 0,
+  //       updatedAt: 0,
+  //       otp: 0,
+  //       otpExpires: 0,
+  //       email: 0,
+  //       watchHistory: 0,
+  //       isVerified: 0,
+  //     }
+  //     }
+  // ]);
 
   if(!user){
     throw new ApiError(400, 'User not found');
   }
   res.status(200).json(new ApiResponse(200 , user))
+})
+
+const switchToSeller = asyncHandler(async (req , res) => {
+  const user = await User.findByIdAndUpdate(
+    req.user._id,
+    { role: 'seller' },
+    { new: true }  // returns the updated document
+  ).select('-password -refreshToken');
+
+  res.status(200).json(new ApiResponse(200, user , 'Switched To Seller Mode.'));
+
 })
 
 const refreshAccessToken = asyncHandler(async (req , res) => {
@@ -461,7 +497,7 @@ export const resendOtp = async (req, res) => {
   }
 };
 
-export { registerUser, loginUser,  logoutUser, refreshAccessToken, changeCurrentPassword, getCurrentUser, updateCurrentUser, updateUserAvatar, updateUserCoverImage, getUserChannelProfile , getAnyUser };
+export { registerUser, loginUser,  logoutUser, refreshAccessToken, changeCurrentPassword, getCurrentUser, updateCurrentUser, updateUserAvatar, updateUserCoverImage, getUserChannelProfile , getAnyUser, switchToSeller };
 
 
 /*

@@ -6,9 +6,12 @@ import { useRouter } from "next/navigation";
 import { use, useEffect, useState } from "react";
 import { BiCart } from "react-icons/bi";
 
+// This type is used to overcome the success property problem
+type ThisUser = User & {success : boolean};
+
 const page = ({params} : {params : Promise<{ id: string }>}) => {
     const {id} =  use(params);
-    const [user , setUser] = useState<User | null>(null);
+    const [user , setUser] = useState<ThisUser | null>(null);
     const [loading , setLoading] = useState<boolean>(false);
     const router = useRouter();
 
@@ -17,10 +20,16 @@ const page = ({params} : {params : Promise<{ id: string }>}) => {
         setLoading(true)
         const res = await fetch(`/api/v1/users/${id}`);
         const data = await res.json();
-        setUser(data.data);
+
+        if(res.status === 200){
+          setUser(data.data);
+        } else{
+          setUser(data);
+        }
+
         setLoading(false);
       }
-      getUser()
+      getUser();
     }, []);
 
     useEffect(()=>{
@@ -31,8 +40,10 @@ const page = ({params} : {params : Promise<{ id: string }>}) => {
       return <div>Loading...</div>
     }
 
-    if(user){  
-      if(user?.role !== 'seller'){
+    if(user){
+      if(user.success === false){
+        return <div>User Not Found</div>
+      } else if(user?.role !== 'seller'){
         return <div className="text-4xl w-screen h-[80vh] space-y-5 flex justify-center items-center text-primary flex-col">
           <div className="flex gap-2">
             User is not a Seller

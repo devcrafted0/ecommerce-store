@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { getAnyUser, getCurrentUser, loginUser, logoutUser, refreshAccessToken, registerUser, resendOtp, verifyOtp } from "../controllers/user.controllers.js";
+import { getAnyUser, getCurrentUser, loginUser, logoutUser, refreshAccessToken, registerUser, resendOtp, switchToSeller, verifyOtp } from "../controllers/user.controllers.js";
 import { upload } from '../middlewares/multer.middleware.js'
 import { verifyJWT } from "../middlewares/auth.middleware.js";
 
@@ -38,6 +38,7 @@ router.route('/:id').get(getAnyUser);
 
 // Secured Routes
 router.route('/logout').post(verifyJWT , logoutUser);
+router.route('/switchtoseller').post(verifyJWT, switchToSeller)
 router.route('/refresh-token').post(refreshAccessToken)
 
 export default router;

@@ -33,7 +33,7 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
 
   const fetchUser = async() => {
-    const res = await fetch('http://localhost:8000/api/v1/users/me', {
+    const res = await fetch('/api/v1/users/me', {
       credentials: "include",
     });
     const user = await res.json();

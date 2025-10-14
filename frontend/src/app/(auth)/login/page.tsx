@@ -9,7 +9,7 @@ import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
 const page = () => {
-  const {email , setEmail ,otpResponse} = useAuth();
+  const {email , setEmail ,otpResponse, response} = useAuth();
   const {user, setUser} = useUser();
 
   const router = useRouter();
@@ -17,9 +17,15 @@ const page = () => {
   const [password, setPassword] = useState<string>("");
   const [showPassword, setShowPassword] = useState<boolean>(false);
 
-  const [response , setResponse] = useState<Response>({});
+  const [response1 , setResponse] = useState<Response>({});
   
   const [loading, setLoading] = useState<boolean>(false);
+
+  useEffect(()=>{
+    if(user){
+      router.push('/');
+    }
+  }, [user])
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -62,9 +68,11 @@ const page = () => {
     <div className="flex flex-col w-full h-screen justify-center items-center">
       {otpResponse.statusCode === 200 && <FormStatus success={true} text={otpResponse.message!}/>}
       
+      {response.statusCode === 200 && <FormStatus success={true} text={response.message!}/>}
+
       <form onSubmit={handleLogin} className="md:w-96 w-80 flex flex-col items-center justify-center">
         <div className="w-full">
-          {!response.success && <FormStatus success={response.success} text={response.message!}/>}
+          {!response1.success && <FormStatus success={response1.success} text={response1.message!}/>}
         </div>
         <h2 className="text-4xl text-gray-900 font-medium">Login</h2>
         <p className="text-sm text-gray-500/90 mt-3">

@@ -8,6 +8,7 @@ import FormStatus from "@/components/main/FormStatus";
 import { useAuth } from "@/context/authContext";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { useUser } from "@/context/userContext";
 
 type RegisterError = {
   username? : string,
@@ -86,12 +87,20 @@ const page = () => {
 
     return newErrors;
   };
+  
+  const router = useRouter();
+
+  const {user} = useUser();
+
+  useEffect(()=>{
+    if(user){
+      router.push('/');
+    }
+  }, [user])
 
   useEffect(() => {
     setErrors(validate({email , password ,confirmPassword , username}, touched));
   }, [email,  touched , password , confirmPassword , username]);
-
-  const router = useRouter();
 
   useEffect(() => {
     console.log({
