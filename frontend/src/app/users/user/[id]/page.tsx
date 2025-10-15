@@ -1,6 +1,6 @@
 'use client'
 import assets from "@/assets/assets";
-import { User } from "@/context/userContext";
+import { User, useUser } from "@/context/userContext";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { use, useEffect, useState } from "react";
@@ -10,9 +10,11 @@ import { BiCart } from "react-icons/bi";
 type ThisUser = User & {success : boolean};
 
 const page = ({params} : {params : Promise<{ id: string }>}) => {
+    const {user : currentLoggedInUser , loadingUser} = useUser();
     const {id} =  use(params);
     const [user , setUser] = useState<ThisUser | null>(null);
     const [loading , setLoading] = useState<boolean>(false);
+
     const router = useRouter();
 
     useEffect(()=>{
@@ -36,9 +38,11 @@ const page = ({params} : {params : Promise<{ id: string }>}) => {
       console.log(user);
     }, [user]);
 
-    if(!user || loading){
+    if(!user || loading || loadingUser){
       return <div>Loading...</div>
     }
+
+    const isOwnProfile = currentLoggedInUser && user && currentLoggedInUser._id === user._id;
 
     if(user){
       if(user.success === false){
@@ -107,9 +111,9 @@ const page = ({params} : {params : Promise<{ id: string }>}) => {
               <button className="text-gray-400 hover:text-white">...more</button>
             </p>
 
-            <button className="bg-primary cursor-pointer text-white px-6 py-2 rounded-full font-semibold hover:opacity-90 transition-colors">
+            {!isOwnProfile && <button className="bg-primary cursor-pointer text-white px-6 py-2 rounded-full font-semibold hover:opacity-90 transition-colors">
               Follow
-            </button>
+            </button>}
           </div>
         </div>
 

@@ -22,11 +22,15 @@ export type User = {
 type UserContextType = {
   user: User | null;
   setUser: (user: User | null) => void;
+  loadingUser : boolean;
+  setLoadingUser : (loadingUser : boolean) => void;
 };
 
 const UserContext = createContext<UserContextType>({
   user: null,
   setUser: () => {},
+  loadingUser : true,
+  setLoadingUser : () => {},
 });
 
 export const UserProvider = ({ children }: { children: React.ReactNode }) => {
@@ -57,7 +61,7 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
     // console.log(user);
   }, [user])
 
-   const value = useMemo(() => ({ user , setUser }), [user]);
+   const value = useMemo(() => ({ user , setUser , loadingUser , setLoadingUser }), [user , loadingUser]);
 
   return (
     <UserContext.Provider value={value}>
