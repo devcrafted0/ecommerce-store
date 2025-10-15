@@ -8,7 +8,7 @@ export function middleware(req: NextRequest) {
   const pathname = req.nextUrl.pathname;
 
   // Routes that require *any* authenticated user
-  const protectedRoutes = ["/users/dashboard", "/users/logout"];
+  const protectedRoutes = ["/users/dashboard", "/users/logout", "/users/profile"];
   const isProtected = protectedRoutes.some(path => pathname.startsWith(path));
 
 
@@ -27,5 +27,5 @@ export function middleware(req: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/users/dashboard/:path*", "/users/logout"],
+  matcher: ["/users/dashboard/:path*", "/users/logout", "/users/profile"],
 };
