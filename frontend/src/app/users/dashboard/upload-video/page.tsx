@@ -5,6 +5,8 @@ import { Upload, Edit2, ChevronDown, Play } from 'lucide-react';
 import axios from 'axios';
 import ProgressBar from '@/components/ProgressBar';
 import FormStatus from '@/components/main/FormStatus';
+import { type Response } from '@/context/authContext';
+import Loader from '@/components/main/Loader';
 
 export default function VideoUpload() {
 
@@ -22,8 +24,10 @@ export default function VideoUpload() {
   const [expandedSection, setExpandedSection] = useState<string | null>(null);
   const [uploadProgress, setUploadProgress] = useState<number>(0);
   const [thumbnailUploadProgress , setThumbnailUploadProgress] = useState<number>(0);
-  const [response , setResponse] = useState<string>('');
+  const [response , setResponse] = useState<Response>({});
   const [disabled , setDisabled] = useState<boolean>(false);
+
+  const [loading , setLoading] = useState<boolean>(false);
 
   const handleFileSelect = async (e : React.ChangeEvent<HTMLInputElement>, type:string) => {
     setDisabled(false);
@@ -72,14 +76,38 @@ export default function VideoUpload() {
   };
 
   const publishVideo = async() => {
-    const res = await axios.post('/api/v1/video/post-video', {title , description , videoUrl , thumbnailUrl , duration})
-    setResponse(res.data.message)
+    try {
+      setLoading(true);
+      const res = await axios.post('/api/v1/video/post-video', {title , description , videoUrl , thumbnailUrl , duration})
+      setResponse(res.data);
+      window.scrollTo({ top: 0, behavior: 'smooth' })
+      setTitle('');
+      setDescription('');
+      setThumbnail(null);
+      setVideoFile(null);
+      setVideoUrl('');
+      setThumbnailUrl('');
+      setDuration(0);
+      setTags('');
+    } catch (err) {
+      if (axios.isAxiosError(err)) {
+        setResponse(err.response?.data);
+        window.scrollTo({ top: 0, behavior: 'smooth' })
+      } else {
+        setResponse({message : 'Something went wrong', success : false})
+      }
+    } finally{
+      setLoading(false);
+    }
   }
 
   return (
     <div className="min-h-screen bg-gray-50 p-6 w-full">
+
+      {loading && <Loader/>}
+
       <div className="max-w-6xl mx-auto">
-        {response !== '' && <FormStatus text={response} success={true}/>}
+        {response.success ? <FormStatus text={response.message!} success={response.success} /> : <FormStatus text={response.message!} success={response.success}/>}
         {/* Header */}
         <div className="mb-8">
           <h1 className="text-4xl font-bold text-gray-900 mb-2">Upload Video</h1>

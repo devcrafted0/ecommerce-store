@@ -2,6 +2,9 @@
 import React, { useState, ChangeEvent, DragEvent, useEffect } from 'react';
 import { X, Upload, Check } from 'lucide-react';
 import axios from 'axios';
+import { type Response } from '@/context/authContext';
+import FormStatus from '@/components/main/FormStatus';
+import Loader from '@/components/main/Loader';
 
 interface ProductImage {
   id: number;
@@ -50,10 +53,8 @@ const initialFormData: ProductFormData = {
 export default function AddProductForm() {
   const [images, setImages] = useState<ProductImage[]>([]);
   const [formData, setFormData] = useState<ProductFormData>(initialFormData);
-
-  useEffect(()=>{
-    console.log({...formData , images});
-  }, [formData, images]);
+  const [response , setResponse] = useState<Response>({});
+  const [loading , setLoading] = useState<boolean>(false);
 
   const handleChange = <K extends FormField>(field: K, value: ProductFormData[K]): void => {
     setFormData(prev => ({ ...prev, [field]: value }));
@@ -99,7 +100,7 @@ export default function AddProductForm() {
   };
 
   const handleSubmit = async () => {
-
+ 
     const formDataAll = new FormData();
 
     // Append all object fields (like spreading)
@@ -112,7 +113,24 @@ export default function AddProductForm() {
       formDataAll.append("images", image.file);
     })
 
-    const res = await axios.post('/api/v1/product/publishProduct', formDataAll);
+    try {
+      setLoading(true);
+      const res = await axios.post('/api/v1/product/publishProduct', formDataAll);
+      setResponse(res.data);
+      setFormData(initialFormData);
+      setImages([]);
+      window.scrollTo({ top: 0, behavior: 'smooth' })
+
+    } catch (err : unknown) {
+        if (axios.isAxiosError(err)) {
+          setResponse(err.response?.data);
+          window.scrollTo({ top: 0, behavior: 'smooth' })
+        } else {
+          setResponse({message : 'Something went wrong', success : false})
+        }
+    } finally{
+      setLoading(false);
+    }
   };
 
   const handleCancel = (): void => {
@@ -124,12 +142,16 @@ export default function AddProductForm() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-gray-50 to-slate-100 p-4 md:p-6 lg:p-8 w-screen">
+      {loading && <Loader/>}
       <div className="max-w-7xl mx-auto">
         <div className="mb-8">
           <h1 className="text-3xl md:text-4xl font-bold bg-gradient-to-r from-gray-800 to-gray-600 bg-clip-text text-transparent">
             Add New Product
           </h1>
           <p className="text-gray-500 mt-2">Fill in the details to add a new product to your inventory</p>
+          <div className='my-3'>
+            {response.success ? <FormStatus success={true} text='Product Successfully Published'/> : <FormStatus success={false} text={response.message!}/>}
+          </div>
         </div>
         
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -459,7 +481,11 @@ export default function AddProductForm() {
           <button
             onClick={handleSubmit}
             type="button"
-            className="px-8 py-3.5 bg-gradient-to-r from-pink-500 via-pink-600 to-pink-500 text-white rounded-xl font-medium hover:from-pink-600 hover:via-pink-700 hover:to-pink-600 transition-all shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
+            disabled={loading}
+            className={`px-8 py-3.5 bg-gradient-to-r text-white rounded-xl font-medium transition-all shadow-lg hover:shadow-xl transform hover:-translate-y-0.5
+              ${loading ? "bg-gray-300 cursor-not-allowed text-black" : "from-pink-500 via-pink-600 to-pink-500 cursor-pointer hover:from-pink-600 hover:via-pink-700 hover:to-pink-600"}
+              
+              `}
           >
             Save Product
           </button>
