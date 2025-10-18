@@ -18,29 +18,49 @@ const productSchema = new mongoose.Schema(
       trim: true,
     },
 
-    price: {
+    regularPrice: {
+      type: Number,
+      required: true,
+      min: 0,
+    },
+    salePrice: {
       type: Number,
       required: true,
       min: 0,
     },
 
-    deals: {
-      type: Boolean,
-      default: false,
-    },
+    hasSalePrice : Boolean,
+    taxable : Boolean,
+    sku : String,
 
+    shortDescription : String,
+    fullDescription : String,
     brand: String,
 
-    description: String,
-
-    images: [String],
+    images: [{
+      url : String,
+      public_id : String,
+    }],
 
     inStock: {
       type: Boolean,
       default: true,
     },
+
+    stockUnit : String,
+    weight : String,
+    dimensions : String,
   },
   { timestamps: true }
 );
 
-export default mongoose.model("Product", productSchema);
+productSchema.index({ owner: 1, sku: 1 }, { unique: true })
+
+productSchema.pre('save', function (next) {
+  if (this.sku) {
+    this.sku = this.sku.toUpperCase();
+  }
+  next();
+});
+
+export const Product =  mongoose.model("Product", productSchema);

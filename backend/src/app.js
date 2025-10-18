@@ -25,4 +25,8 @@ app.use('/api/v1/users', userRoute);
 import videoRoute from './routes/video.routes.js'
 app.use('/api/v1/video', videoRoute);
 
+// Product Route
+import productRoute from './routes/product.routes.js'
+app.use('/api/v1/product', productRoute);
+
 export default app;
