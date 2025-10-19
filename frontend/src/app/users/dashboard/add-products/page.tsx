@@ -5,6 +5,7 @@ import axios from 'axios';
 import { type Response } from '@/context/authContext';
 import FormStatus from '@/components/main/FormStatus';
 import Loader from '@/components/main/Loader';
+import CategorySelect, { type category } from '@/components/main/CategorySelect';
 
 interface ProductImage {
   id: number;
@@ -12,7 +13,7 @@ interface ProductImage {
   file: File;
 }
 
-interface ProductFormData {
+export interface ProductFormData {
   name: string;
   category: string;
   shortDescription: string;
@@ -30,7 +31,7 @@ interface ProductFormData {
   images : [],
 }
 
-type FormField = keyof ProductFormData;
+export type FormField = keyof ProductFormData;
 
 const initialFormData: ProductFormData = {
   name: '',
@@ -50,15 +51,22 @@ const initialFormData: ProductFormData = {
   images : [],
 };
 
+
+
 export default function AddProductForm() {
   const [images, setImages] = useState<ProductImage[]>([]);
   const [formData, setFormData] = useState<ProductFormData>(initialFormData);
   const [response , setResponse] = useState<Response>({});
   const [loading , setLoading] = useState<boolean>(false);
+  const [categoryOpen, setCategoryOpen] = useState<boolean>(false);
 
   const handleChange = <K extends FormField>(field: K, value: ProductFormData[K]): void => {
     setFormData(prev => ({ ...prev, [field]: value }));
   };
+
+  useEffect(()=>{
+    console.log(formData)
+  }, [formData])
 
   const processFiles = (files: File[]): void => {
     const remainingSlots = 5 - images.length;
@@ -140,6 +148,71 @@ export default function AddProductForm() {
     }
   };
 
+  const categories : category[] = [
+    {
+      name: 'Food & Beverages',
+      value: 'food-beverages',
+      description: 'Everything consumable by humans or animals as nourishment',
+      examples: 'Groceries, fruits, snacks, packaged foods, drinks, alcohol'
+    },
+    {
+      name: 'Apparel & Accessories',
+      value: 'apparel-accessories',
+      description: 'Wearable items and personal fashion accessories for style and comfort',
+      examples: 'Clothing, shoes, bags, watches, jewelry'
+    },
+    {
+      name: 'Electronics & Technology',
+      value: 'electronics-technology',
+      description: 'Devices, gadgets, and software used for communication, entertainment, or productivity',
+      examples: 'Phones, computers, TVs, cameras, software, AI tools'
+    },
+    {
+      name: 'Home & Living',
+      value: 'home-living',
+      description: 'Products used to furnish, decorate, or maintain a home environment',
+      examples: 'Furniture, décor, kitchenware, cleaning supplies, bedding'
+    },
+    {
+      name: 'Health & Personal Care',
+      value: 'health-personal-care',
+      description: 'Items related to wellness, fitness, hygiene, and medical care',
+      examples: 'Medicine, supplements, skincare, hygiene products, fitness gear'
+    },
+    {
+      name: 'Automobiles & Transportation',
+      value: 'automobiles-transportation',
+      description: 'Vehicles and accessories used for personal or commercial transportation',
+      examples: 'Cars, bikes, EVs, aircraft, spare parts, fuel'
+    },
+    {
+      name: 'Industrial & Tools',
+      value: 'industrial-tools',
+      description: 'Machinery, tools, and materials used in manufacturing, construction, or repair',
+      examples: 'Power tools, industrial machines, raw materials, construction equipment'
+    },
+    {
+      name: 'Entertainment & Media',
+      value: 'entertainment-media',
+      description: 'Products and content created for leisure, art, or information',
+      examples: 'Books, movies, games, music, streaming subscriptions'
+    },
+    {
+      name: 'Sports & Outdoor',
+      value: 'sports-outdoor',
+      description: 'Equipment and accessories for sports, fitness, and outdoor recreation',
+      examples: 'Sports gear, camping equipment, bicycles, gym equipment'
+    },
+    {
+      name: 'Services & Digital Goods',
+      value: 'services-digital-goods',
+      description: 'Intangible products and digital offerings that provide value or functionality',
+      examples: 'Subscriptions, online courses, consulting, SaaS, NFTs'
+    }
+  ];
+
+  const currentCategory = categories.find((category) => category.value === formData.category);
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-gray-50 to-slate-100 p-4 md:p-6 lg:p-8 w-screen">
       {loading && <Loader/>}
@@ -219,21 +292,18 @@ export default function AddProductForm() {
               </h2>
               
               <div className="grid grid-cols-1 md:grid-cols-2 gap-5 mb-5">
-                <div>
+                <div className='relative w-full'>
                   <label className="block text-sm font-medium text-gray-700 mb-2">Category *</label>
-                  <select
-                    value={formData.category}
-                    onChange={(e: ChangeEvent<HTMLSelectElement>) => handleChange('category', e.target.value)}
-                    className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-pink-500 focus:border-transparent outline-none transition-all bg-white"
-                  >
-                    <option value="">Select Category</option>
-                    <option value="electronics">Electronics</option>
-                    <option value="clothing">Clothing</option>
-                    <option value="food">Food & Beverages</option>
-                    <option value="books">Books</option>
-                    <option value="health">Health & Beauty</option>
-                    <option value="home">Home & Garden</option>
-                  </select>
+                    <div className={`w-full h-12 px-4 py-3 border border-gray-200 rounded-xl ${categoryOpen && 'ring-2 ring-pink-500 border-transparent'} outline-none transition-all bg-white`} onClick={()=>setCategoryOpen(!categoryOpen)}>
+                      <span>{currentCategory ? currentCategory.name  : 'Select Category' }</span>
+                    </div>
+                    {categoryOpen && 
+                      <div className='absolute w-full z-30 mt-2'>
+                        {categories.map(category => (                  
+                            <CategorySelect category={category} handleChange={handleChange} value={category.value} setCategoryOpen={setCategoryOpen}/>
+                        ))}
+                      </div>
+                    }
                 </div>
                 
                 <div>
