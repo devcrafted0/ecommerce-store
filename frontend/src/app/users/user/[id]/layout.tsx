@@ -1,5 +1,6 @@
 "use client";
 import assets from "@/assets/assets";
+import Loader from "@/components/main/Loader";
 import { User, useUser } from "@/context/userContext";
 import Image from "next/image";
 import Link from "next/link";
@@ -41,7 +42,7 @@ const UserPagelayout = ({ params , children }: { params: Promise<{ id: string }>
   }, [user]);
 
   if (!user || loading || loadingUser) {
-    return <div>Loading...</div>;
+    return <Loader/>
   }
 
   const isOwnProfile = currentLoggedInUser && user && currentLoggedInUser._id === user._id;

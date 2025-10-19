@@ -5,7 +5,7 @@ import { useState } from "react";
 import { FaLongArrowAltLeft, FaLongArrowAltRight } from "react-icons/fa";
 import ImageSwiper from "@/components/main/ImageSwiper";
 import MainCard from "@/components/main/MainCard";
-import assets, { products } from "@/assets/assets";
+import assets from "@/assets/assets";
 
 const Page = () => {
   const [sidebarOpen, setSidebarOpen] = useState<boolean>(false);
@@ -46,9 +46,7 @@ const Page = () => {
             <div className="p-4">
               <h1>Fruits</h1>
               <div className="grid gap-6 p-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 auto-rows-auto place-items-stretch">
-                {products.map((p, i) => (
-                  <MainCard key={i} product={p}/>
-                ))}
+                  {/* <MainCard key={i} product={p}/> */}
               </div>
             </div>
           </div>
