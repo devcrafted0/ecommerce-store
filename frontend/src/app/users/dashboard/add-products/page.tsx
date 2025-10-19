@@ -300,7 +300,7 @@ export default function AddProductForm() {
                     {categoryOpen && 
                       <div className='absolute w-full z-30 mt-2'>
                         {categories.map(category => (                  
-                            <CategorySelect category={category} handleChange={handleChange} value={category.value} setCategoryOpen={setCategoryOpen}/>
+                            <CategorySelect key={category.value} category={category} handleChange={handleChange} value={category.value} setCategoryOpen={setCategoryOpen}/>
                         ))}
                       </div>
                     }
