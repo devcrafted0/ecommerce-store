@@ -5,6 +5,37 @@
   --color-primary: #B6349A;
   --color-primary-dull: #925682;
 
+  --color-main: oklch(0.4 0.2 340); /* this is the dull version of the primary color */
+  --color-main-muted: oklch(0.15 0.2 340); /* this is the muted version of the primary color */
+
   /* Breakpoints */
+  --breakpoint-md850: 850px;
+}
+
+@theme {
+  /* 🎨 Backgrounds */
+  --color-bg-dark: oklch(0.92 0.1 340);
+  --color-bg: oklch(0.96 0.1 340);
+  --color-bg-light: oklch(1 0.1 340);
+
+  /* 📝 Text */
+  
+
+  /* ✨ Accents & Highlights */
+  --color-highlight: oklch(1 0.2 340);
+
+  /* 🧱 Borders */
+  --color-border: oklch(0.6 0.2 340);
+  --color-border-muted: oklch(0.7 0.2 340);
+
+  /* 🌈 Semantic Palette */
+  --color-primary: oklch(0.4 0.2 340);
+  --color-secondary: oklch(0.4 0.2 160);
+  --color-danger: oklch(0.5 0.2 30);
+  --color-warning: oklch(0.5 0.2 100);
+  --color-success: oklch(0.5 0.2 160);
+  --color-info: oklch(0.5 0.2 260);
+
+  /* 🧩 Breakpoints */
   --breakpoint-md850: 850px;
 }

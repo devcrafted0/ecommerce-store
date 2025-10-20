@@ -62,7 +62,7 @@ const UserPagelayout = ({ params , children }: { params: Promise<{ id: string }>
           </div>
           <button
             onClick={() => router.push("/")}
-            className="text-primary border-primary border px-3 py-2 text-2xl rounded hover:bg-primary hover:text-primary cursor-pointer transition-all duration-200"
+            className="text-primary border-primary border px-3 py-2 text-2xl rounded hover:bg-primary hover:text-white cursor-pointer transition-all duration-200"
           >
             Back To Home
           </button>
