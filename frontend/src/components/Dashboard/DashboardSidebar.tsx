@@ -1,6 +1,6 @@
 'use client'
 import { useEffect, useState } from 'react';
-import { Menu, X, Upload , PackagePlus, User } from 'lucide-react';
+import { Menu, X, Upload , PackagePlus, Store, Clapperboard } from 'lucide-react';
 import { usePathname, useRouter } from 'next/navigation';
 import Image from 'next/image';
 import { useUser } from '@/context/userContext';
@@ -16,19 +16,20 @@ export default function DashboardSidebar() {
   const pathname = usePathname();
   
   useEffect(()=>{
-    if(pathname.endsWith('upload-video')){
-      setActiveItem('upload-video');
-    }
+    const currentPathname = menuItems.find(f=>f.link === pathname.split("/").filter(Boolean).pop());
+    setActiveItem(currentPathname?.id!);
   }, [])
+
+  const menuItems = [
+    { id: 'my-products', label: 'My Products', icon: Store   , link : 'my-products'},
+    { id: 'my-videos', label: 'My Videos', icon: Clapperboard   , link : 'my-videos'},
+    { id: 'add-products', label: 'Add Products', icon: PackagePlus , link : 'add-products'},
+    { id: 'upload-video', label: 'Upload Video', icon: Upload , link : 'upload-video'},
+  ];
 
   const routerHandeler = (route:  string) => {
     router.push(`/users/dashboard/${route}`)
   }
-  
-  const menuItems = [
-    { id: 'add-products', label: 'Add Products', icon: PackagePlus , link : 'add-products'},
-    { id: 'upload-video', label: 'Upload Video', icon: Upload , link : 'upload-video'},
-  ];
 
   const handleMenuClick = (itemId : string) => {
     setActiveItem(itemId);

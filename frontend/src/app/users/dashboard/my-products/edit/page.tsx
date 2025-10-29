@@ -1,16 +1,20 @@
 'use client'
 import React, { useState, ChangeEvent, DragEvent, useEffect } from 'react';
 import { X, Upload, Check } from 'lucide-react';
-import axios from 'axios';
+import axios, { Axios, AxiosError } from 'axios';
 import { type Response } from '@/context/authContext';
 import FormStatus from '@/components/main/FormStatus';
 import Loader from '@/components/main/Loader';
 import CategorySelect, { type category } from '@/components/main/CategorySelect';
+import { Product } from '@/assets/assets';
+import { useDashboard } from '@/context/dashboardContext';
+import { useRouter } from 'next/navigation';
 
 interface ProductImage {
-  id: number;
+  _id: number;
   url: string;
   file: File;
+  public_id? : string;
 }
 
 export interface ProductFormData {
@@ -33,40 +37,79 @@ export interface ProductFormData {
 
 export type FormField = keyof ProductFormData;
 
-const initialFormData: ProductFormData = {
-  name: '',
-  shortDescription: '',
-  fullDescription: '',
-  category: '',
-  taxable: false,
-  regularPrice: '',
-  salePrice: '',
-  hasSalePrice: false,
-  sku: '',
-  inStock: true,
-  stockUnit: '',
-  weight: '',
-  dimensions: '',
-  brand : '',
-  images : [],
-};
-
-
-
 export default function AddProductForm() {
   const [images, setImages] = useState<ProductImage[]>([]);
+  const [initialFormData , setInitialFormData] = useState<ProductFormData>({
+    name: '',
+    shortDescription: '',
+    fullDescription: '',
+    category: '',
+    taxable: false,
+    regularPrice: '',
+    salePrice: '',
+    hasSalePrice: false,
+    sku: '',
+    inStock: true,
+    stockUnit: '',
+    weight: '',
+    dimensions: '',
+    brand : '',
+    images : [],
+  });
   const [formData, setFormData] = useState<ProductFormData>(initialFormData);
   const [response , setResponse] = useState<Response>({});
   const [loading , setLoading] = useState<boolean>(false);
   const [categoryOpen, setCategoryOpen] = useState<boolean>(false);
+  const [currentProduct, setCurrentProduct] = useState<Product[]>([]);
+  const {editId , setEditId} = useDashboard();
+  const router = useRouter();
+
+  if(editId === ''){
+    router.push('/users/dashboard/my-products');
+  }
+
 
   const handleChange = <K extends FormField>(field: K, value: ProductFormData[K]): void => {
     setFormData(prev => ({ ...prev, [field]: value }));
   };
 
+  const fetchProduct = async() => {
+    try {
+      setLoading(true);
+      const res = await axios.get(`/api/v1/product/${editId}`);
+      // For directly getting the products
+      setInitialFormData(res.data.data);
+    } catch (err) {
+      if(err instanceof AxiosError){
+        console.error(`Axios Error : ${err.message}`);
+      } else {
+        console.error(`Unknown Error : ${err}`)
+      }
+    } finally {
+      setLoading(false);
+    }
+  }
+
   useEffect(()=>{
-    console.log(formData)
-  }, [formData]);
+    // console.log('Initial Form Data' ,initialFormData);
+    setFormData(initialFormData);
+    setImages(formData.images);
+  }, [initialFormData])
+
+  useEffect(()=>{
+    if(editId){
+        fetchProduct();
+    }
+  }, [editId])
+
+  useEffect(()=>{
+    // setImages(formData.images);
+    console.log('Form Data to send to the backend' , formData);
+  }, [formData])
+
+  useEffect(()=>{
+    console.log(images)
+  }, [images]);
 
   const processFiles = (files: File[]): void => {
     const remainingSlots = 5 - images.length;
@@ -93,7 +136,7 @@ export default function AddProductForm() {
   };
 
   const removeImage = (id: number): void => {
-    setImages(prev => prev.filter(img => img.id !== id));
+    setImages(prev => prev.filter(img => img._id !== id));
   };
 
   const handleDragOver = (e: DragEvent<HTMLDivElement>): void => {
@@ -108,37 +151,54 @@ export default function AddProductForm() {
   };
 
   const handleSubmit = async () => {
- 
-    const formDataAll = new FormData();
-
-    // Append all object fields (like spreading)
-    Object.entries(formData).forEach(([key, value]) => {
-      formDataAll.append(key, value);
-    });
-
-    // Append image array
-    images.forEach((image) => {
-      formDataAll.append("images", image.file);
-    })
-
     try {
       setLoading(true);
-      const res = await axios.post('/api/v1/product/publishProduct', formDataAll);
+      const existingImages : ProductImage[] = images.filter(
+          (img: ProductImage) => img.public_id
+      );
+  
+      const newImages : ProductImage[] = images.filter(
+          (img: ProductImage) => img.file 
+      );
+  
+      const uploadedImages = [];
+  
+      for (const img of newImages) {
+          const uploadData = new FormData();
+          uploadData.append("image", img.file);
+  
+          const res = await axios.post("/api/v1/product/upload-image", uploadData);
+  
+          uploadedImages.push({ url: res.data.secure_url, public_id: res.data.public_id });
+      }
+  
+      console.log('Uploaded Images' ,uploadedImages);
+  
+      const finalImages = [...existingImages, ...uploadedImages];
+      console.log('Final Images : ',finalImages);
+  
+      const res = await axios.put(`/api/v1/product/edit-product/${editId}`, {
+          ...formData,
+          images: finalImages,
+      });
+  
       setResponse(res.data);
-      setFormData(initialFormData);
-      setImages([]);
-      window.scrollTo({ top: 0, behavior: 'smooth' })
 
-    } catch (err : unknown) {
-        if (axios.isAxiosError(err)) {
+      setFormData(initialFormData);
+      setEditId('');
+      router.push('/users/dashboard/my-products');
+
+    } catch (err) {
+        if(err instanceof AxiosError){
           setResponse(err.response?.data);
-          window.scrollTo({ top: 0, behavior: 'smooth' })
         } else {
-          setResponse({message : 'Something went wrong', success : false})
+          console.log(err);
         }
     } finally{
       setLoading(false);
+      window.scrollTo({top: 0, behavior: 'smooth'})
     }
+
   };
 
   const handleCancel = (): void => {
@@ -219,11 +279,11 @@ export default function AddProductForm() {
       <div className="max-w-7xl mx-auto">
         <div className="mb-8">
           <h1 className="text-3xl md:text-4xl font-bold bg-gradient-to-r from-gray-800 to-gray-600 bg-clip-text text-transparent">
-            Add New Product
+            Edit Your Product
           </h1>
-          <p className="text-gray-500 mt-2">Fill in the details to add a new product to your inventory</p>
+          <p className="text-gray-500 mt-2">Customize Your Product</p>
           <div className='my-3'>
-            {response.success ? <FormStatus success={true} text='Product Successfully Published'/> : <FormStatus success={false} text={response.message!}/>}
+            {response.success ? <FormStatus text={response.message!} success={response.success} /> : <FormStatus text={response.message!} success={response.success}/>} 
           </div>
         </div>
         
@@ -509,7 +569,7 @@ export default function AddProductForm() {
                   <h3 className="text-sm font-medium text-gray-700 mb-3">Uploaded Images</h3>
                   <div className="grid grid-cols-2 gap-3">
                     {images.map((img: ProductImage, idx: number) => (
-                      <div key={img.id} className="relative group">
+                      <div key={img._id} className="relative group">
                         <div className="aspect-square rounded-lg overflow-hidden border-2 border-gray-100">
                           <img
                             src={img.url}
@@ -518,7 +578,7 @@ export default function AddProductForm() {
                           />
                         </div>
                         <button
-                          onClick={() => removeImage(img.id)}
+                          onClick={() => removeImage(img._id)}
                           type="button"
                           className="absolute -top-2 -right-2 bg-gradient-to-br from-red-500 to-red-600 text-white rounded-full p-1.5 opacity-0 group-hover:opacity-100 transition-all shadow-lg hover:scale-110"
                         >
