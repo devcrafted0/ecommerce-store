@@ -60,7 +60,6 @@ export default function AddProductForm() {
   const [response , setResponse] = useState<Response>({});
   const [loading , setLoading] = useState<boolean>(false);
   const [categoryOpen, setCategoryOpen] = useState<boolean>(false);
-  const [currentProduct, setCurrentProduct] = useState<Product[]>([]);
   const {editId , setEditId} = useDashboard();
   const router = useRouter();
 
@@ -91,7 +90,6 @@ export default function AddProductForm() {
   }
 
   useEffect(()=>{
-    // console.log('Initial Form Data' ,initialFormData);
     setFormData(initialFormData);
     setImages(formData.images);
   }, [initialFormData])
@@ -101,15 +99,6 @@ export default function AddProductForm() {
         fetchProduct();
     }
   }, [editId])
-
-  useEffect(()=>{
-    // setImages(formData.images);
-    console.log('Form Data to send to the backend' , formData);
-  }, [formData])
-
-  useEffect(()=>{
-    console.log(images)
-  }, [images]);
 
   const processFiles = (files: File[]): void => {
     const remainingSlots = 5 - images.length;
@@ -172,10 +161,7 @@ export default function AddProductForm() {
           uploadedImages.push({ url: res.data.secure_url, public_id: res.data.public_id });
       }
   
-      console.log('Uploaded Images' ,uploadedImages);
-  
       const finalImages = [...existingImages, ...uploadedImages];
-      console.log('Final Images : ',finalImages);
   
       const res = await axios.put(`/api/v1/product/edit-product/${editId}`, {
           ...formData,
