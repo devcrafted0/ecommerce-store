@@ -2,7 +2,7 @@ import { Router } from "express";
 import { authorizeRoles } from "../middlewares/authorizeRoles.js";
 import { upload } from "../middlewares/multer.middleware.js";
 import { verifyJWT } from "../middlewares/auth.middleware.js";
-import { getAllProducts, getProduct, publishProduct, uploadImage , editProduct} from "../controllers/product.controllers.js";
+import { getAllProducts, getProduct, publishProduct, uploadImage , editProduct, deleteProduct} from "../controllers/product.controllers.js";
 const router = Router();
 
 // get all the users for the specific user
@@ -20,5 +20,9 @@ router.route('/publishProduct').post(verifyJWT, authorizeRoles("seller"), upload
 router.route('/upload-image').post(verifyJWT, authorizeRoles("seller"), upload.single('image') , uploadImage);
 // for complete edit of the product (the product will be coming completely)
 router.route('/edit-product/:id').put(verifyJWT , authorizeRoles("seller"), editProduct);
+
+// delete the prodcut 
+
+router.route('/delete-product/:id').delete(verifyJWT , authorizeRoles("seller") , deleteProduct );
 
 export default router;

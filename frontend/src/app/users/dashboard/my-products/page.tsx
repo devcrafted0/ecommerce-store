@@ -7,6 +7,7 @@ import { type Product } from '@/assets/assets';
 import Loader from '@/components/main/Loader';
 import { useDashboard } from '@/context/dashboardContext';
 import { useRouter } from 'next/navigation';
+import DeleteConfirmationDialog from '@/components/main/DeleteConfirmationDialog';
 
 const Page = () => {
   const a = {
@@ -60,6 +61,10 @@ const Page = () => {
   const [products, setProducts] = useState<Product[]>([]);
   const [loading , setLoading] = useState<boolean>(false);
   const {user} = useUser();
+
+  const [deletePopup , setDeletePopup] = useState<boolean>(false);
+  const [deleteId, setDeleteId] = useState<string>('');
+
   const {setEditId} = useDashboard();
 
   const fetchProducts = async() => {
@@ -92,6 +97,11 @@ const Page = () => {
   const editButtonHandeler = (id : string) => {
     setEditId(id);
     router.push('/users/dashboard/my-products/edit');
+  }
+
+  const handleDelete = (id : string) => {
+    setDeleteId(id);
+    setDeletePopup(true);
   }
 
   return (
@@ -204,7 +214,7 @@ const Page = () => {
                         <span className="hidden sm:inline">Edit</span>
                       </button>
                       <button
-                        // onClick={() => handleDelete(product.id)}
+                        onClick={() => handleDelete(product._id)}
                         className="flex items-center gap-1 px-3 py-2 bg-red-500 text-white rounded-lg font-medium text-sm hover:bg-red-600 transition-colors"
                       >
                         <Trash2 size={16} />
@@ -217,6 +227,8 @@ const Page = () => {
             </div>
           ))}
         </div>
+
+        <DeleteConfirmationDialog isOpen={deletePopup} setIsOpen={setDeletePopup} id={deleteId} setDeleteId={setDeleteId}/>
 
         {/* Empty State */}
         {products.length === 0 && (

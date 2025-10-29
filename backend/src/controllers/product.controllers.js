@@ -302,4 +302,16 @@ const editProduct = asyncHandler(async (req , res) => {
   }
 })
 
-export { publishProduct, getAllProducts, getProduct , uploadImage , editProduct };
+const deleteProduct = asyncHandler(async (req , res) => {
+  const { id } = req.params;
+
+  const response = await Product.deleteOne({_id : id  , owner : req.user._id});
+
+  if(!response){
+    throw new ApiError(400 , 'Not a valid request');
+  }
+
+  res.status(200).json(new ApiResponse(200, {} ,'Product Deleted'))
+});
+
+export { publishProduct, getAllProducts, getProduct , uploadImage , editProduct , deleteProduct };

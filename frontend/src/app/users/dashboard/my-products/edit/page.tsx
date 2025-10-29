@@ -191,6 +191,7 @@ export default function AddProductForm() {
     if (window.confirm('Are you sure you want to cancel? All unsaved changes will be lost.')) {
       setFormData(initialFormData);
       setImages([]);
+      router.push('/users/dashboard/my-products');
     }
   };
 
