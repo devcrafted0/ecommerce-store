@@ -109,7 +109,7 @@ export default function AddProductForm() {
     }
 
     const newImages: ProductImage[] = files.map(file => ({
-      id: Date.now() + Math.random(),
+      _id: Date.now() + Math.random(),
       url: URL.createObjectURL(file),
       file
     }));
