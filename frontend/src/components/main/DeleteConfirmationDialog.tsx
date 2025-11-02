@@ -21,6 +21,7 @@ export default function DeleteConfirmationDialog({isOpen , setIsOpen , id , setD
     try {
       setLoading(true)
       const res = await axios.delete(`/api/v1/product/delete-product/${id}`);
+       window.location.reload();
     } catch (err) {
       // console.log(err);
     } finally {
